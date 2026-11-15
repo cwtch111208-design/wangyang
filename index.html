@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>汪洋羽球俱樂部｜LINE 授權測試</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: #f1f5f4;
+      font-family: Arial, sans-serif;
+      color: #263b38;
+    }
+    .container {
+      max-width: 480px;
+      margin: 30px auto;
+      padding: 28px 22px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px #0001;
+    }
+    h2 { text-align: center; }
+    .subtitle {
+      text-align: center;
+      color: #78908a;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin: 18px 0 8px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d7e1dd;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+    #status {
+      margin-top: 18px;
+      padding: 12px;
+      background: #f5f8f7;
+      border-radius: 8px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>汪洋羽球俱樂部</h2>
+    <div class="subtitle">LINE 名稱自動帶入測試</div>
+
+    <label>LINE 顯示名稱</label>
+    <input id="lineName" placeholder="等待 LINE 授權..." readonly>
+
+    <div id="status">正在準備 LINE 授權...</div>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const LIFF_ID = '2012621482-5yzVzgJV';
+
+    async function initLineProfile() {
+      const nameInput = document.getElementById('lineName');
+      const status = document.getElementById('status');
+
+      try {
+        status.textContent = '① 正在初始化 LINE...';
+
+        await liff.init({
+          liffId: LIFF_ID
+        });
+
+        status.textContent = '② LINE 初始化成功，正在確認登入狀態...';
+
+        if (!liff.isLoggedIn()) {
+          status.textContent = '③ 尚未登入，準備前往 LINE 授權...';
+          liff.login({
+            redirectUri: window.location.href
+          });
+          return;
+        }
+
+        status.textContent = '④ 正在取得 LINE 個人資料...';
+
+        const profile = await liff.getProfile();
+
+        nameInput.value = profile.displayName;
+        status.textContent = '⑤ 授權成功！已取得 LINE 名稱：' +
+          profile.displayName;
+
+      } catch (error) {
+        console.error('LIFF 錯誤：', error);
+        status.textContent =
+          '授權失敗：' + error.message;
+      }
+    }
+
+    window.addEventListener('load', initLineProfile);
+  </script>
+</body>
+</html>
